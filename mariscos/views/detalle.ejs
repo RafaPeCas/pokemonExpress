@@ -1,0 +1,66 @@
+<%- include("template/header", {titulo: 'Crear Pokemon' }) %>
+  <div class="container">
+    <h1>Detalles del Pokemon</h1>
+
+    <% if (error) { %>
+      <%= mensaje%>
+        <a class="btn btn-dark btn-block my-2" href="/pokemon"></a>
+        <% } %>
+          <% if (!error) { %>
+            <form id="editar" data-id="<%=pokemon._id%>">
+              <input type="number" value="<%=pokemon.id%>" class="form-control my-2" name="id" id="idInput">
+              <input type="text" value="<%=pokemon.nombre%>" class="form-control my-2" name="nombre" id="nombreInput">
+              <input type="text" value="<%=pokemon.tipo%>" class="form-control my-2" name="tipo" id="tipoInput">
+              <input type="text" value="<%=pokemon.descripcion%>" class="form-control my-2" id="descripcion" name="descripcionInput">
+              <button type="submit" id="editar" class="btn btn-primary btn-sm">
+                Actualizar
+              </button>
+            </form>
+            <hr>
+            <button class="btn btn-danger btn-sm" id="eliminar" data-id="<%=pokemon._id%>">Eliminar</button>
+            <% } %>
+  </div>
+  <script>
+    const btnEliminar = document.getElementById("eliminar")
+    btnEliminar.addEventListener("click", async () => {
+      console.log(btnEliminar.dataset.id)
+      try {
+        const data = await fetch(`/pokemon/${btnEliminar.dataset.id}`, {
+          method: "delete"
+        })
+        const res = await data.json()
+        console.log(res)
+        if (res.estado) {
+          window.location.href = "/pokemon"
+        } else {
+          console.log(res)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    })
+
+    const formEditar = document.querySelector("#editar");
+    formEditar.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const id = formEditar.elements["id"].value
+      const nombre = formEditar.elements["nombre"].value
+      const tipo = formEditar.elements["tipo"].value
+      const descripcion = formEditar.elements["descripcion"].value
+      const _id = formEditar.dataset.id
+      const data = await fetch(`/pokemon/${_id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id, nombre, tipo, descripcion })
+      })
+      const res = await data.json()
+      if (res.estado) {
+        window.location.href = "/pokemon"
+      } else {
+        console.log(res)
+      }
+    })
+  </script>
+  <%- include("template/footer.ejs") %>
